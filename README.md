@@ -2,9 +2,8 @@
 
 ## Myself introduction
 
-薛沛森，来自河北石家庄，平时爱好看番
-
-成电21级信软学院班级0903班，QQ271456172，电话15100127835
+Xue Peisen, from Shijiazhuang, Hebei, usually likes watching anime.
+I am a student at the University of Electronic Science and Technology of China and want to become a software engineer.
 
 ## anything else
 
