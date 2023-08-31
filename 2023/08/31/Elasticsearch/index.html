@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="后端," />
 
 
 
@@ -79,12 +79,12 @@
 
 
 
-<meta name="description" content="12345title: Elasticsearch的入门了解与简单使用date: 2023-8-31 18:51:13categories: 后端tags: - 后端  Elasticsearch 此篇博客为本人学习时的笔记，欢迎大家参考学习。在此感谢黑马程序员提供的课程。  什么是Elasticsearch 强大的分布式搜索引擎     倒排索引  与mysql的一些对比 文档    索引">
+<meta name="description" content="此篇博客为本人学习时的笔记，欢迎大家参考学习。在此感谢黑马程序员提供的课程。  什么是Elasticsearch 强大的分布式搜索引擎     倒排索引  与mysql的一些对比 文档    索引     mysql更加安全、es擅长海量数据的搜索，两者互补    ik分词器 ik分词器用来实现对句子进行分词  可以拓展和停用词典    ES实操mapping属性 DSL操作索引库 创建索引库">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="Elasticsearch的入门了解与简单使用">
 <meta property="og:url" content="http://example.com/2023/08/31/Elasticsearch/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="12345title: Elasticsearch的入门了解与简单使用date: 2023-8-31 18:51:13categories: 后端tags: - 后端  Elasticsearch 此篇博客为本人学习时的笔记，欢迎大家参考学习。在此感谢黑马程序员提供的课程。  什么是Elasticsearch 强大的分布式搜索引擎     倒排索引  与mysql的一些对比 文档    索引">
+<meta property="og:description" content="此篇博客为本人学习时的笔记，欢迎大家参考学习。在此感谢黑马程序员提供的课程。  什么是Elasticsearch 强大的分布式搜索引擎     倒排索引  与mysql的一些对比 文档    索引     mysql更加安全、es擅长海量数据的搜索，两者互补    ik分词器 ik分词器用来实现对句子进行分词  可以拓展和停用词典    ES实操mapping属性 DSL操作索引库 创建索引库">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230828151714087.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230828151731533.png">
@@ -153,9 +153,10 @@
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230831172255690.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230831172326851.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230831172554433.png">
-<meta property="article:published_time" content="2023-08-31T10:51:57.579Z">
-<meta property="article:modified_time" content="2023-08-31T10:51:39.822Z">
+<meta property="article:published_time" content="2023-08-31T10:51:13.000Z">
+<meta property="article:modified_time" content="2023-08-31T11:00:03.349Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="后端">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230828151714087.png">
 
@@ -193,7 +194,7 @@
 
 
 
-  <title> | Hexo</title>
+  <title>Elasticsearch的入门了解与简单使用 | Hexo</title>
   
 
 
@@ -371,7 +372,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">Elasticsearch的入门了解与简单使用</h1>
         
 
         <div class="post-meta">
@@ -383,7 +384,7 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-08-31T18:51:57+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-08-31T18:51:13+08:00">
                 2023-08-31
               </time>
             
@@ -393,6 +394,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">后端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -421,9 +444,7 @@
       
 
       
-        <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">title: Elasticsearch的入门了解与简单使用</span><br><span class="line">date: 2023-8-31 18:51:13</span><br><span class="line">categories: 后端</span><br><span class="line">tags: </span><br><span class="line">- 后端</span><br></pre></td></tr></table></figure>
-
-<h2 id="Elasticsearch"><a href="#Elasticsearch" class="headerlink" title="Elasticsearch"></a>Elasticsearch</h2><blockquote>
+        <blockquote>
 <p>此篇博客为本人学习时的笔记，欢迎大家参考学习。在此感谢黑马程序员提供的课程。</p>
 </blockquote>
 <h3 id="什么是Elasticsearch"><a href="#什么是Elasticsearch" class="headerlink" title="什么是Elasticsearch"></a>什么是Elasticsearch</h3><ul>
@@ -715,6 +736,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%90%8E%E7%AB%AF/" rel="tag"><i class="fa fa-tag"></i> 后端</a>
+          
+        </div>
+      
 
       
       
@@ -822,7 +849,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">categories</span>
                 
               </div>
@@ -833,7 +860,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">tags</span>
                 
               </div>
@@ -866,7 +893,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFElasticsearch"><span class="nav-number">1.1.</span> <span class="nav-text">什么是Elasticsearch</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="nav-number">1.1.1.</span> <span class="nav-text">倒排索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8Emysql%E7%9A%84%E4%B8%80%E4%BA%9B%E5%AF%B9%E6%AF%94"><span class="nav-number">1.1.2.</span> <span class="nav-text">与mysql的一些对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ik%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">1.1.3.</span> <span class="nav-text">ik分词器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES%E5%AE%9E%E6%93%8D"><span class="nav-number">1.2.</span> <span class="nav-text">ES实操</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#mapping%E5%B1%9E%E6%80%A7"><span class="nav-number">1.2.1.</span> <span class="nav-text">mapping属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E6%93%8D%E4%BD%9C%E7%B4%A2%E5%BC%95%E5%BA%93"><span class="nav-number">1.2.2.</span> <span class="nav-text">DSL操作索引库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3"><span class="nav-number">1.2.3.</span> <span class="nav-text">DSL操作文档</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RestClient%E6%93%8D%E4%BD%9CES"><span class="nav-number">1.3.</span> <span class="nav-text">RestClient操作ES</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E5%86%99mapping"><span class="nav-number">1.3.1.</span> <span class="nav-text">编写mapping</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96RestClient"><span class="nav-number">1.3.2.</span> <span class="nav-text">初始化RestClient</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%BA%93%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.3.</span> <span class="nav-text">索引库操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E6%A1%A3%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.4.</span> <span class="nav-text">文档操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.5.</span> <span class="nav-text">批量导入数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.4.</span> <span class="nav-text">ES查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.4.1.</span> <span class="nav-text">DSL查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C%E5%A4%84%E7%90%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">查询结果处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RestClient%E6%93%8D%E4%BD%9CES-1"><span class="nav-number">1.5.</span> <span class="nav-text">RestClient操作ES</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.6.</span> <span class="nav-text">使用实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%81%9A%E5%90%88"><span class="nav-number">1.7.</span> <span class="nav-text">数据聚合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E8%BF%9B%E8%A1%8C%E8%81%9A%E5%90%88"><span class="nav-number">1.7.1.</span> <span class="nav-text">DSL进行聚合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RestClient%E5%AE%9E%E7%8E%B0%E8%81%9A%E5%90%88"><span class="nav-number">1.7.2.</span> <span class="nav-text">RestClient实现聚合</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">1.8.</span> <span class="nav-text">自动补全</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">1.8.1.</span> <span class="nav-text">自定义分词器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">1.8.2.</span> <span class="nav-text">DSL实现自动补全</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RestClient%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">1.8.3.</span> <span class="nav-text">RestClient实现自动补全</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E5%90%88%E5%89%8D%E7%AB%AF%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">1.8.4.</span> <span class="nav-text">配合前端实现自动补全</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">1.9.</span> <span class="nav-text">数据同步</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8MQ%E5%AE%9E%E7%8E%B0%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">1.9.1.</span> <span class="nav-text">使用MQ实现数据同步</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES%E9%9B%86%E7%BE%A4"><span class="nav-number">1.10.</span> <span class="nav-text">ES集群</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFElasticsearch"><span class="nav-number">1.</span> <span class="nav-text">什么是Elasticsearch</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="nav-number">1.1.</span> <span class="nav-text">倒排索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8Emysql%E7%9A%84%E4%B8%80%E4%BA%9B%E5%AF%B9%E6%AF%94"><span class="nav-number">1.2.</span> <span class="nav-text">与mysql的一些对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ik%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">1.3.</span> <span class="nav-text">ik分词器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES%E5%AE%9E%E6%93%8D"><span class="nav-number">2.</span> <span class="nav-text">ES实操</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#mapping%E5%B1%9E%E6%80%A7"><span class="nav-number">2.1.</span> <span class="nav-text">mapping属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E6%93%8D%E4%BD%9C%E7%B4%A2%E5%BC%95%E5%BA%93"><span class="nav-number">2.2.</span> <span class="nav-text">DSL操作索引库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3"><span class="nav-number">2.3.</span> <span class="nav-text">DSL操作文档</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RestClient%E6%93%8D%E4%BD%9CES"><span class="nav-number">3.</span> <span class="nav-text">RestClient操作ES</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E5%86%99mapping"><span class="nav-number">3.1.</span> <span class="nav-text">编写mapping</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96RestClient"><span class="nav-number">3.2.</span> <span class="nav-text">初始化RestClient</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%BA%93%E6%93%8D%E4%BD%9C"><span class="nav-number">3.3.</span> <span class="nav-text">索引库操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E6%A1%A3%E6%93%8D%E4%BD%9C"><span class="nav-number">3.4.</span> <span class="nav-text">文档操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="nav-number">3.5.</span> <span class="nav-text">批量导入数据</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES%E6%9F%A5%E8%AF%A2"><span class="nav-number">4.</span> <span class="nav-text">ES查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E6%9F%A5%E8%AF%A2"><span class="nav-number">4.1.</span> <span class="nav-text">DSL查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C%E5%A4%84%E7%90%86"><span class="nav-number">4.2.</span> <span class="nav-text">查询结果处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RestClient%E6%93%8D%E4%BD%9CES-1"><span class="nav-number">5.</span> <span class="nav-text">RestClient操作ES</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">6.</span> <span class="nav-text">使用实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%81%9A%E5%90%88"><span class="nav-number">7.</span> <span class="nav-text">数据聚合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E8%BF%9B%E8%A1%8C%E8%81%9A%E5%90%88"><span class="nav-number">7.1.</span> <span class="nav-text">DSL进行聚合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RestClient%E5%AE%9E%E7%8E%B0%E8%81%9A%E5%90%88"><span class="nav-number">7.2.</span> <span class="nav-text">RestClient实现聚合</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">8.</span> <span class="nav-text">自动补全</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">8.1.</span> <span class="nav-text">自定义分词器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DSL%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">8.2.</span> <span class="nav-text">DSL实现自动补全</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RestClient%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">8.3.</span> <span class="nav-text">RestClient实现自动补全</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E5%90%88%E5%89%8D%E7%AB%AF%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8"><span class="nav-number">8.4.</span> <span class="nav-text">配合前端实现自动补全</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">9.</span> <span class="nav-text">数据同步</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8MQ%E5%AE%9E%E7%8E%B0%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">9.1.</span> <span class="nav-text">使用MQ实现数据同步</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ES%E9%9B%86%E7%BE%A4"><span class="nav-number">10.</span> <span class="nav-text">ES集群</span></a></li></ol></div>
             
 
           </div>

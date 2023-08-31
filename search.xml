@@ -13,11 +13,9 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>Elasticsearch的入门了解与简单使用</title>
     <url>/2023/08/31/Elasticsearch/</url>
-    <content><![CDATA[<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: Elasticsearch的入门了解与简单使用</span><br><span class="line">date: 2023-8-31 18:51:13</span><br><span class="line">categories: 后端</span><br><span class="line">tags: </span><br><span class="line">- 后端</span><br></pre></td></tr></table></figure>
-
-<h2 id="Elasticsearch"><a href="#Elasticsearch" class="headerlink" title="Elasticsearch"></a>Elasticsearch</h2><blockquote>
+    <content><![CDATA[<blockquote>
 <p>此篇博客为本人学习时的笔记，欢迎大家参考学习。在此感谢黑马程序员提供的课程。</p>
 </blockquote>
 <h3 id="什么是Elasticsearch"><a href="#什么是Elasticsearch" class="headerlink" title="什么是Elasticsearch"></a>什么是Elasticsearch</h3><ul>
@@ -295,5 +293,11 @@
 <p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230831172326851.png" alt="image-20230831172326851"></p>
 <p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230831172554433.png" alt="image-20230831172554433"></p>
 ]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>后端</tag>
+      </tags>
   </entry>
 </search>
