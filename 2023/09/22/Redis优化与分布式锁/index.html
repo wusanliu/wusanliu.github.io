@@ -442,7 +442,7 @@
 <p>比如去请求&#x2F;content&#x2F;course&#x2F;whole&#x2F;181，查询181号课程，该课程并不在课程发布表中。</p>
 <p>进行压力测试发现会去请求数据库。</p>
 <p>大量并发去访问一个数据库不存在的数据，由于缓存中没有该数据导致大量并发查询数据库，这个现象要缓存穿透。</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172438488.png" alt="image-20230920172438488" style="zoom:50%;" />
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172438488.png" alt="image-20230920172438488" style="zoom:50%;">
 
 <p>缓存穿透可以造成数据库瞬间压力过大，连接数等资源用完，最终数据库拒绝连接不可用。</p>
 <ul>
@@ -483,7 +483,7 @@
 </li>
 </ul>
 <h3 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h3><p>缓存击穿是指大量并发访问同一个热点数据，当热点数据失效后同时去请求数据库，瞬间耗尽数据库资源，导致数据库无法使用。</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920174412647.png" alt="image-20230920174412647" style="zoom:50%;" />
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920174412647.png" alt="image-20230920174412647" style="zoom:50%;">
 
 <ul>
 <li><p>如何解决缓存击穿？</p>
@@ -516,10 +516,10 @@
 <p>设置key永不过期</p>
 <h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaolincoding/p/16517673.html">不错的讲解-小林Coding</a></p>
 <p>一个同步锁程序只能保证同一个虚拟机中多个线程只有一个线程去数据库，如果高并发通过网关负载均衡转发给各个虚拟机，此时就会存在多个线程去查询数据库情况，因为虚拟机中的锁只能保证该虚拟机自己的线程去同步执行，无法跨虚拟机保证同步执行。</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191843855.png" alt="image-20230920191843855" style="zoom:50%;" />
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191843855.png" alt="image-20230920191843855" style="zoom:50%;">
 
 <p>本地锁只能控制所在虚拟机中的线程同步执行，现在要实现分布式环境下所有虚拟机中的线程去同步执行就需要让多个虚拟机去共用一个锁，虚拟机可以分布式部署，锁也可以分布式部署，如下图：</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191957111.png" alt="image-20230920191957111" style="zoom:50%;" />
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191957111.png" alt="image-20230920191957111" style="zoom:50%;">
 
 <h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>1、基于数据库实现分布锁</p>
 <p>利用数据库主键唯一性的特点，或利用数据库唯一索引的特点，多个线程同时去插入相同的记录，谁插入成功谁就抢到锁。</p>
@@ -592,7 +592,7 @@
 </blockquote>
 </li>
 </ul>
-<h3 id=""><a href="#" class="headerlink" title=""></a></h3>
+<h3 id><a href="#" class="headerlink" title></a></h3>
       
     </div>
     
@@ -822,7 +822,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">39.7k</span>
+    <span title="Site words total count">39.1k</span>
   
 </div>
 <!--
