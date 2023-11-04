@@ -90,14 +90,12 @@
 <meta property="og:description" content="Spring Cloud Gateway作为网关帮助我们实现了身份认证和权限校验，服务路由、负载均衡、请求限流等功能">
 <meta property="og:locale">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230922153113224.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504211233239.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230922153158796.png">
+<meta property="og:image" content="https://mynamelancelot.github.io/img/spring-cloud-gateway/gateway%E6%9E%B6%E6%9E%84.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504215634971.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220248215.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220910150.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220658510.png">
 <meta property="article:published_time" content="2023-09-22T12:38:13.000Z">
-<meta property="article:modified_time" content="2023-09-23T08:51:51.131Z">
+<meta property="article:modified_time" content="2023-11-04T11:27:58.640Z">
 <meta property="article:author" content="WuSanLiu">
 <meta property="article:tag" content="后端">
 <meta property="article:tag" content="Spring Cloud Gateway">
@@ -383,7 +381,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  673 字
+                  1.3k 字
                 </span>
               
 
@@ -399,7 +397,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  2 分钟
+                  5 分钟
                 </span>
               
             </div>
@@ -424,30 +422,35 @@
       
 
       
-        <h1 id="认识Spring-Cloud-Gateway"><a href="#认识Spring-Cloud-Gateway" class="headerlink" title="认识Spring Cloud Gateway"></a>认识Spring Cloud Gateway</h1><ul>
-<li><p><a target="_blank" rel="noopener" href="https://spring.io/projects/spring-cloud-gateway">官方文档</a></p>
-</li>
-<li><p>网关功能：身份认证和权限校验，服务路由、负载均衡、请求限流</p>
-<p>实现对微服务的保护</p>
-</li>
-</ul>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230922153113224.png" alt="image-20230922153113224"></p>
-<h2 id="搭建网关服务"><a href="#搭建网关服务" class="headerlink" title="搭建网关服务"></a>搭建网关服务</h2><p>创建新模块gateway</p>
+        <h1 id="Spring-Cloud-Gateway的简单使用"><a href="#Spring-Cloud-Gateway的简单使用" class="headerlink" title="Spring Cloud Gateway的简单使用"></a>Spring Cloud Gateway的简单使用</h1><h2 id="一、Gateway概述"><a href="#一、Gateway概述" class="headerlink" title="一、Gateway概述"></a>一、Gateway概述</h2><h3 id="微服务网关简介"><a href="#微服务网关简介" class="headerlink" title="微服务网关简介"></a>微服务网关简介</h3><p>在微服务架构中，不同的微服务可以有不同的网络地址，各个微服务之间通过互相调用完成用户请求。这样会带来几个问题：</p>
 <ul>
-<li><p>导入依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--        Nacos服务发现依赖--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-alibaba-Nacos-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--        网关gateway依赖--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-gateway<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>编写路由配置及Nacos地址（实现服务路由）</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">10010</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">gateway</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">Nacos:</span></span><br><span class="line">      <span class="attr">server-addr:</span> <span class="string">localhost:8848</span> <span class="comment">#Nacos地址</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">user-service</span> <span class="comment">#路由id，自定义</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://userservice</span> <span class="comment">#路由目标地址，lb为负载均衡</span></span><br><span class="line">          <span class="attr">predicates:</span>  <span class="comment">#断言，在这个之中添加条件</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/user/**</span> <span class="comment">#判断路径是否以此开头</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">order-service</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://orderservice</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/order/**</span></span><br></pre></td></tr></table></figure>
+<li>客户端多次请求不同的微服务，增加客户端的复杂性</li>
+<li>认证复杂，每个服务都要进行认证</li>
+<li>存在跨域请求，比较复杂</li>
+</ul>
+<p>于是微服务网关就是在客户端和服务端之间增加一个API网关，所有的外部请求先通过这个微服务网关，它只需跟网关进行交互，而由网关进行各个微服务的调用。这样前端只需请求一个IP地址，也解决的权鉴问题。</p>
+<p>总结一下，服务网关大概就是四个功能：<strong>统一接入、流量管控、协议适配、安全维护</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230922153113224.png" alt="image-20230922153113224"></p>
+<h3 id="Gateway简介"><a href="#Gateway简介" class="headerlink" title="Gateway简介"></a>Gateway简介</h3><p>spring Cloud Gateway是Spring Cloud推出的第二代网关框架，取代Zuul网关。提供了路由转发、权限校验、限流控制等作用。Spring Cloud Gateway 使用非阻塞 API，支持 WebSockets。</p>
+<p><strong>相关概念：</strong></p>
+<ul>
+<li><strong>Route（路由）</strong>：网关的基本构建块。由一个 ID，一个目标 URI，一组断言和一组过滤器定义。如果断言为真，则路由匹配。</li>
+<li><strong>Predicate（断言）</strong>：这是一个Predicate。输入类型是一个ServerWebExchange。可以使用它来匹配来自 HTTP 请求的任何内容，例如headers或参数。</li>
+<li><strong>Filter（过滤器）</strong>：这是<code>GatewayFilter</code>或<code>GlobalFilter</code>的实例，可以使用它修改请求和响应。</li>
+</ul>
+<p><img src="https://mynamelancelot.github.io/img/spring-cloud-gateway/gateway%E6%9E%B6%E6%9E%84.png" alt="gateway架构"></p>
+<p>客户端向Spring Cloud Gateway发出请求。如果Gateway Handler Mapping中找到与请求相匹配的路由，将其发送到Gateway Web Handler。Handler再通过指定的过滤器链来将请求发送到实际的服务执行业务逻辑，然后返回。</p>
+<h2 id="二、搭建网关服务"><a href="#二、搭建网关服务" class="headerlink" title="二、搭建网关服务"></a>二、搭建网关服务</h2><h3 id="导入依赖"><a href="#导入依赖" class="headerlink" title="导入依赖"></a>导入依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-gateway<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>路由示例</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504211233239.png" alt="image-20230504211233239"></p>
+<ul>
+<li><p>编写路由配置及Nacos地址（实现服务路由）</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">gateway</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">user-service</span> <span class="comment">#路由id，自定义</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://userservice</span> <span class="comment">#路由目标地址，lb为负载均衡</span></span><br><span class="line">          <span class="attr">predicates:</span>  <span class="comment">#断言，在这个之中添加条件</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/user/**</span> <span class="comment">#判断路径是否以此开头</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">order-service</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://orderservice</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/order/**</span></span><br></pre></td></tr></table></figure>
 </li>
-<li><p>断言工厂：在断言中，提供很多规则，限制用户请求</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230922153158796.png" alt="image-20230922153158796"></p>
+<li><p>我们可以在predicates处设置断言。</p>
+<p>xxxxxxxxxx @XxlJob(“testJob”)public void testJob() throws Exception {    log.info(“开始执行…..”);​}java</p>
 </li>
 </ul>
-<h2 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h2><ul>
+<h3 id="配置过滤器"><a href="#配置过滤器" class="headerlink" title="配置过滤器"></a>配置过滤器</h3><ul>
 <li><p>路由过滤器</p>
 <p>过滤器工厂：通过设置条件，对请求进行过滤和一些操作</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">gateway:</span></span><br><span class="line">  <span class="attr">routes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">user-service</span> <span class="comment">#路由id，自定义</span></span><br><span class="line">      <span class="attr">uri:</span> <span class="string">lb://userservice</span> <span class="comment">#路由目标地址，lb为负载均衡</span></span><br><span class="line">      <span class="attr">predicates:</span>  <span class="comment">#断言，在这个之中添加条件</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">Path=/user/**</span> <span class="comment">#判断路径是否以此开头</span></span><br><span class="line">      <span class="attr">filters:</span> <span class="comment">#过滤器</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">AddRequestHeader=HaHa,Ha</span> <span class="comment">#例子，在请求头加入HaHa=Ha</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">order-service</span></span><br><span class="line">      <span class="attr">uri:</span> <span class="string">lb://orderservice</span></span><br><span class="line">      <span class="attr">predicates:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">Path=/order/**</span></span><br></pre></td></tr></table></figure>
@@ -457,21 +460,22 @@
 </li>
 <li><p>全局过滤器</p>
 <p>就是自己写业务逻辑，对所有请求进行过滤。（外言：可以结合Spring Security实现网关认证）</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504215634971.png" alt="image-20230504215634971"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220248215.png" alt="image-20230504220248215"></p>
-<p>order值越小，优先级越高</p>
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504215634971.png" alt="image-20230504215634971" style="zoom:50%;">
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginFilter</span> <span class="keyword">implements</span> <span class="title class_">GlobalFilter</span>, Ordered &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 执行过滤器中的业务逻辑</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;执行了自定义的全局过滤器&quot;</span>);</span><br><span class="line">    <span class="comment">//1.获取请求参数access-token</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> exchange.getRequest().getQueryParams().getFirst(<span class="string">&quot;access-token&quot;</span>);</span><br><span class="line">    <span class="comment">//2.判断是否存在</span></span><br><span class="line">    <span class="keyword">if</span>(token == <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">//3.如果不存在 : 认证失败</span></span><br><span class="line">      System.out.println(<span class="string">&quot;没有登录&quot;</span>);</span><br><span class="line">      exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);</span><br><span class="line">      <span class="keyword">return</span> exchange.getResponse().setComplete(); <span class="comment">//请求结束</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//4.如果存在,继续执行</span></span><br><span class="line">    <span class="keyword">return</span> chain.filter(exchange); <span class="comment">//继续向下执行</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 指定过滤器的执行顺序 , 返回值越小执行优先级越高</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getOrder</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Ordered.HIGHEST_PRECEDENCE;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>过滤器顺序</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220910150.png" alt="image-20230504220910150"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220658510.png" alt="image-20230504220658510"></p>
-</li>
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220910150.png" alt="image-20230504220910150" style="zoom: 50%;">
+
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230504220658510.png" alt="image-20230504220658510" style="zoom:50%;"></li>
 </ul>
-<h2 id="跨域问题处理"><a href="#跨域问题处理" class="headerlink" title="跨域问题处理"></a>跨域问题处理</h2><p>跨域：域名不一样，端口不一样可以称为跨域。浏览器禁止请求的发起者与服务端发生跨域ajax请求，请求被浏览器拦截。</p>
+<h2 id="三、跨域问题处理"><a href="#三、跨域问题处理" class="headerlink" title="三、跨域问题处理"></a>三、跨域问题处理</h2><p>跨域：域名不一样，端口不一样可以称为跨域。浏览器禁止请求的发起者与服务端发生跨域ajax请求，请求被浏览器拦截。</p>
 <ul>
 <li><p>使用网关解决跨域问题</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">globalcors:</span> <span class="comment"># 全局的跨域处理</span></span><br><span class="line">  <span class="attr">add-to-simple-url-handler-mapping:</span> <span class="literal">true</span> <span class="comment"># 解决options请求被拦截问题</span></span><br><span class="line">  <span class="attr">corsConfigurations:</span></span><br><span class="line">    <span class="string">&#x27;[/**]&#x27;</span><span class="string">:</span></span><br><span class="line">      <span class="attr">allowedOrigins:</span> <span class="comment"># 允许哪些网站的跨域请求</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;http://localhost:8090&quot;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;http://www.leyou.com&quot;</span></span><br><span class="line">      <span class="attr">allowedMethods:</span> <span class="comment"># 允许的跨域ajax的请求方式</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;GET&quot;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;POST&quot;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;DELETE&quot;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;PUT&quot;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&quot;OPTIONS&quot;</span></span><br><span class="line">      <span class="attr">allowedHeaders:</span> <span class="string">&quot;*&quot;</span> <span class="comment"># 允许在请求中携带的头信息</span></span><br><span class="line">      <span class="attr">allowCredentials:</span> <span class="literal">true</span> <span class="comment"># 是否允许携带cookie</span></span><br><span class="line">      <span class="attr">maxAge:</span> <span class="number">360000</span> <span class="comment"># 这次跨域检测的有效期</span></span><br></pre></td></tr></table></figure></li>
 </ul>
-
+<h2 id="四、集成security"><a href="#四、集成security" class="headerlink" title="四、集成security"></a>四、集成security</h2><p>导入相应依赖，补充配置文件，自己根据业务调整所需部分</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableWebFluxSecurity</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SecurityConfig</span> &#123;</span><br><span class="line"> <span class="comment">//安全拦截配置</span></span><br><span class="line"> <span class="meta">@Bean</span></span><br><span class="line"> <span class="keyword">public</span> SecurityWebFilterChain <span class="title function_">webFluxSecurityFilterChain</span><span class="params">(ServerHttpSecurity http)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> http.authorizeExchange()</span><br><span class="line">          .pathMatchers(<span class="string">&quot;/**&quot;</span>).permitAll()</span><br><span class="line">          .anyExchange().authenticated()</span><br><span class="line">          .and().csrf().disable().build();</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -505,8 +509,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2023/09/22/Redis%E4%BC%98%E5%8C%96%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" rel="next" title="Redis优化与分布式锁">
-                <i class="fa fa-chevron-left"></i> Redis优化与分布式锁
+              <a href="/2023/09/21/SpringBoot%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" rel="next" title="SpringBoot实现自定义异常处理">
+                <i class="fa fa-chevron-left"></i> SpringBoot实现自定义异常处理
               </a>
             
           </div>
@@ -515,8 +519,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2023/09/22/%E8%AE%A4%E8%AF%86Nacos/" rel="prev" title="认识Nacos">
-                认识Nacos <i class="fa fa-chevron-right"></i>
+              <a href="/2023/09/23/%E8%AE%A4%E8%AF%86Spring%20Security/" rel="prev" title="认识Spring Security">
+                认识Spring Security <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -600,7 +604,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -622,7 +626,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -662,7 +666,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A4%E8%AF%86Spring-Cloud-Gateway"><span class="nav-number">1.</span> <span class="nav-text">认识Spring Cloud Gateway</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA%E7%BD%91%E5%85%B3%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.1.</span> <span class="nav-text">搭建网关服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">1.2.</span> <span class="nav-text">过滤器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">跨域问题处理</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Cloud-Gateway%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">Spring Cloud Gateway的简单使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Gateway%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">一、Gateway概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">微服务网关简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gateway%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">Gateway简介</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%90%AD%E5%BB%BA%E7%BD%91%E5%85%B3%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.2.</span> <span class="nav-text">二、搭建网关服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%BC%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="nav-number">1.2.1.</span> <span class="nav-text">导入依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">1.2.2.</span> <span class="nav-text">配置过滤器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">三、跨域问题处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%9B%86%E6%88%90security"><span class="nav-number">1.4.</span> <span class="nav-text">四、集成security</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -701,7 +705,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">12.6k</span>
+    <span title="Site words total count">17.7k</span>
   
 </div>
 <!--
