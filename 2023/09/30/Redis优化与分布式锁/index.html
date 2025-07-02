@@ -1,92 +1,31 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
 
-  
-
-
-<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+  <meta charset="UTF-8">
 
-
-
-
-
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <link href="/libchangebyme/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-<link href="/libchangebyme/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
-
-
-
-
-
-  <meta name="keywords" content="后端,Redis优化,Nosql数据库,分布式锁,Redisson," />
-
-
-
-
-
-
-
-
-
-
-<meta name="description" content="本文主要介绍在使用Redis过程中出现的缓存穿透、缓存雪崩和缓存击穿等问题的解决方案，以及对分布式锁的简单介绍和实现。">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WuSanLiu">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文主要介绍在使用Redis过程中出现的缓存穿透、缓存雪崩和缓存击穿等问题的解决方案，以及对分布式锁的简单介绍和实现。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis优化与分布式锁">
 <meta property="og:url" content="http://example.com/2023/09/30/Redis%E4%BC%98%E5%8C%96%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/index.html">
 <meta property="og:site_name" content="伍三">
 <meta property="og:description" content="本文主要介绍在使用Redis过程中出现的缓存穿透、缓存雪崩和缓存击穿等问题的解决方案，以及对分布式锁的简单介绍和实现。">
-<meta property="og:locale">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172416564.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172438488.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920174412647.png">
@@ -102,342 +41,269 @@
 <meta property="article:tag" content="Nosql数据库">
 <meta property="article:tag" content="分布式锁">
 <meta property="article:tag" content="Redisson">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172416564.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Redis优化与分布式锁 - 伍三</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
 
 
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Gemini',
-    version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":true},
-    fancybox: true,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    duoshuo: {
-      userId: '0',
-      author: '博主'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
 
 
-  <link rel="canonical" href="http://example.com/2023/09/30/Redis优化与分布式锁/"/>
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
 
 
 
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
 
 
-  <title>Redis优化与分布式锁 | 伍三</title>
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
 
 
 
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
 
 
-
-
+  
 <meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="伍三" type="application/atom+xml">
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
-  
-  
-    
+<body>
   
 
-  <div class="container sidebar-position-left page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
+  <header>
     
 
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">伍三</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-      
-        <p class="site-subtitle">Learning by doing</p>
-      
-  </div>
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>伍三的个人博客</strong>
+    </a>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
-  </div>
-</div>
 
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
-        <li class="menu-item menu-item-home">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            分类
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-
-      
-        <li class="menu-item menu-item-search">
           
-            <a href="javascript:;" class="popup-trigger">
           
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
-            
-            搜索
-          </a>
-        </li>
-      
-    </ul>
-  
-
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off"
-             placeholder="搜索..." spellcheck="false"
-             type="text" id="local-search-input">
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
   </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
-  
 </nav>
 
-
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
-
-  <div id="posts" class="posts-expand">
-    
-
   
 
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/09/30/Redis%E4%BC%98%E5%8C%96%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/%5Bobject%20Object%5D">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="伍三">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">Redis优化与分布式锁</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-09-30T20:38:13+08:00">
-                2023-09-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
           
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">后端</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
+            <span id="subtitle" data-typed-text="Redis优化与分布式锁"></span>
           
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  4.2k 字
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  16 分钟
-                </span>
-              
-            </div>
-          
-
-          
-              <div class="post-description">
-                  本文主要介绍在使用Redis过程中出现的缓存穿透、缓存雪崩和缓存击穿等问题的解决方案，以及对分布式锁的简单介绍和实现。
-              </div>
-          
-
         </div>
-      </header>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-09-30 20:38" pubdate>
+          2023年9月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          35 分钟
+        
+      </span>
     
 
     
     
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-        <h1 id="Redis优化与分布式锁"><a href="#Redis优化与分布式锁" class="headerlink" title="Redis优化与分布式锁"></a>Redis优化与分布式锁</h1><p>本文主要介绍在使用Redis过程中出现的缓存穿透、缓存雪崩和缓存击穿等问题的解决方案，以及对分布式锁的简单介绍和实现。</p>
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Redis优化与分布式锁</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Redis优化与分布式锁"><a href="#Redis优化与分布式锁" class="headerlink" title="Redis优化与分布式锁"></a>Redis优化与分布式锁</h1><p>本文主要介绍在使用Redis过程中出现的缓存穿透、缓存雪崩和缓存击穿等问题的解决方案，以及对分布式锁的简单介绍和实现。</p>
 <h2 id="Redis优化"><a href="#Redis优化" class="headerlink" title="Redis优化"></a>Redis优化</h2><p>这里首先给出一个Redis的使用实例（查询课程信息），之后将围绕该实例进行讲解。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line">RedisTemplate redisTemplate;    </span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> CoursePublish <span class="title function_">getCoursePublishCache</span><span class="params">(Long courseId)</span> &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;course:&quot;</span> + courseId);</span><br><span class="line">        <span class="keyword">if</span>(o==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="type">CoursePublish</span> <span class="variable">coursePublish</span> <span class="operator">=</span> coursePublishMapper.selectById(courseId);</span><br><span class="line">            redisTemplate.opsForValue().set(<span class="string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish));</span><br><span class="line">            <span class="keyword">return</span> coursePublish;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Autowired</span><br>RedisTemplate redisTemplate;    <br><br><span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> CoursePublish <span class="hljs-title function_">getCoursePublishCache</span><span class="hljs-params">(Long courseId)</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().get(<span class="hljs-string">&quot;course:&quot;</span> + courseId);<br>        <span class="hljs-keyword">if</span>(o==<span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-type">CoursePublish</span> <span class="hljs-variable">coursePublish</span> <span class="hljs-operator">=</span> coursePublishMapper.selectById(courseId);<br>            redisTemplate.opsForValue().set(<span class="hljs-string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish));<br>            <span class="hljs-keyword">return</span> coursePublish;<br>        &#125;<span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h3><p>使用缓存后代码的性能有了很大的提高，虽然性能有很大的提升但是控制台打出了很多“从数据库查询”的日志，明明判断了如果缓存存在课程信息则从缓存查询，为什么要有这么多从数据库查询的请求的？</p>
 <p>这是因为并发数高，很多线程会同时到达查询数据库代码处去执行。</p>
 <p>我们分析下代码：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172416564.png" alt="image-20230920172416564"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172416564.png" srcset="/img/loading.gif" lazyload alt="image-20230920172416564"></p>
 <p>如果存在恶意攻击的可能，如果有大量并发去查询一个不存在的课程信息会出现什么问题呢？</p>
 <p>比如去请求&#x2F;content&#x2F;course&#x2F;whole&#x2F;181，查询181号课程，该课程并不在课程发布表中。</p>
 <p>进行压力测试发现会去请求数据库。</p>
 <p>大量并发去访问一个数据库不存在的数据，由于缓存中没有该数据导致大量并发查询数据库，这个现象要缓存穿透。</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172438488.png" alt="image-20230920172438488" style="zoom:50%;">
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920172438488.png" srcset="/img/loading.gif" lazyload alt="image-20230920172438488" style="zoom:50%;">
 
 <p>缓存穿透可以造成数据库瞬间压力过大，连接数等资源用完，最终数据库拒绝连接不可用。</p>
 <ul>
@@ -456,7 +322,7 @@
 <li><p>缓存空值</p>
 <p>把不存在的数据当作null缓存在redis中。</p>
 <p>如果缓存了空值或特殊值要设置一个短暂的过期时间。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> CoursePublish <span class="title function_">getCoursePublishCache</span><span class="params">(Long courseId)</span> &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;course:&quot;</span> + courseId);</span><br><span class="line">    <span class="keyword">if</span>(o==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="type">CoursePublish</span> <span class="variable">coursePublish</span> <span class="operator">=</span> coursePublishMapper.selectById(courseId);</span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish),<span class="number">30</span>, TimeUnit.SECONDS);</span><br><span class="line">        <span class="keyword">return</span> coursePublish;</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(o.toString().equals(<span class="string">&quot;null&quot;</span>)) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> CoursePublish <span class="hljs-title function_">getCoursePublishCache</span><span class="hljs-params">(Long courseId)</span> &#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().get(<span class="hljs-string">&quot;course:&quot;</span> + courseId);<br>    <span class="hljs-keyword">if</span>(o==<span class="hljs-literal">null</span>)&#123;<br>        <span class="hljs-type">CoursePublish</span> <span class="hljs-variable">coursePublish</span> <span class="hljs-operator">=</span> coursePublishMapper.selectById(courseId);<br>        redisTemplate.opsForValue().set(<span class="hljs-string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish),<span class="hljs-number">30</span>, TimeUnit.SECONDS);<br>        <span class="hljs-keyword">return</span> coursePublish;<br>    &#125;<span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">if</span>(o.toString().equals(<span class="hljs-string">&quot;null&quot;</span>)) <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);<br>    &#125;<br>    <br>&#125;<br></code></pre></td></tr></table></figure></li>
 </ul>
 </li>
 </ul>
@@ -466,10 +332,10 @@
 <li><p>如何解决缓存雪崩？</p>
 <ul>
 <li><p>设置同步锁</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span>(obj)&#123;</span><br><span class="line">  <span class="comment">//查询数据库</span></span><br><span class="line">  <span class="comment">//存入缓存</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">synchronized</span>(obj)&#123;<br>  <span class="hljs-comment">//查询数据库</span><br>  <span class="hljs-comment">//存入缓存</span><br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>对同一类型信息的key设置不同的过期时间</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//设置过期时间300秒</span></span><br><span class="line">redisTemplate.opsForValue().set(<span class="string">&quot;course:&quot;</span> + courseId, JSON.toJSONString(coursePublish),<span class="number">300</span>+<span class="keyword">new</span> <span class="title class_">Random</span>().nextInt(<span class="number">100</span>), TimeUnit.SECONDS);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//设置过期时间300秒</span><br>redisTemplate.opsForValue().set(<span class="hljs-string">&quot;course:&quot;</span> + courseId, JSON.toJSONString(coursePublish),<span class="hljs-number">300</span>+<span class="hljs-keyword">new</span> <span class="hljs-title class_">Random</span>().nextInt(<span class="hljs-number">100</span>), TimeUnit.SECONDS);<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>缓存预热</p>
 <p>不用等到请求到来再去查询数据库存入缓存，可以提前将数据存入缓存。使用缓存预热机制通常有专门的后台程序去将数据库的数据同步到缓存</p>
@@ -478,15 +344,15 @@
 </li>
 </ul>
 <h3 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h3><p>缓存击穿是指大量并发访问同一个热点数据，当热点数据失效后同时去请求数据库，瞬间耗尽数据库资源，导致数据库无法使用。</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920174412647.png" alt="image-20230920174412647" style="zoom:50%;">
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920174412647.png" srcset="/img/loading.gif" lazyload alt="image-20230920174412647" style="zoom:50%;">
 
 <ul>
 <li><p>如何解决缓存击穿？</p>
 <ul>
 <li><p>使用同步锁控制查询数据库的线程</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span>(obj)&#123;</span><br><span class="line">  <span class="comment">//查询数据库</span></span><br><span class="line">  <span class="comment">//存入缓存</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">synchronized</span>(obj)&#123;<br>  <span class="hljs-comment">//查询数据库</span><br>  <span class="hljs-comment">//存入缓存</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> CoursePublish <span class="title function_">getCoursePublishCache</span><span class="params">(Long courseId)</span> &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;course:&quot;</span> + courseId);</span><br><span class="line">        <span class="keyword">if</span>(o==<span class="literal">null</span>)&#123;</span><br><span class="line"><span class="comment">//            同步锁控制访问数据库</span></span><br><span class="line">            <span class="keyword">synchronized</span> (<span class="built_in">this</span>)&#123;</span><br><span class="line"><span class="comment">//                再次查一下缓存</span></span><br><span class="line">                o = redisTemplate.opsForValue().get(<span class="string">&quot;course:&quot;</span> + courseId);</span><br><span class="line"><span class="comment">//                再次查查到了，之前拥有锁的把信息放进去了</span></span><br><span class="line">                <span class="keyword">if</span>(o!=<span class="literal">null</span>)&#123;</span><br><span class="line">                    <span class="keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="type">CoursePublish</span> <span class="variable">coursePublish</span> <span class="operator">=</span> coursePublishMapper.selectById(courseId);</span><br><span class="line">                redisTemplate.opsForValue().set(<span class="string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish),<span class="number">30</span>, TimeUnit.SECONDS);</span><br><span class="line">                <span class="keyword">return</span> coursePublish;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(o.toString().equals(<span class="string">&quot;null&quot;</span>)) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java">    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> CoursePublish <span class="hljs-title function_">getCoursePublishCache</span><span class="hljs-params">(Long courseId)</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().get(<span class="hljs-string">&quot;course:&quot;</span> + courseId);<br>        <span class="hljs-keyword">if</span>(o==<span class="hljs-literal">null</span>)&#123;<br><span class="hljs-comment">//            同步锁控制访问数据库</span><br>            <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>)&#123;<br><span class="hljs-comment">//                再次查一下缓存</span><br>                o = redisTemplate.opsForValue().get(<span class="hljs-string">&quot;course:&quot;</span> + courseId);<br><span class="hljs-comment">//                再次查查到了，之前拥有锁的把信息放进去了</span><br>                <span class="hljs-keyword">if</span>(o!=<span class="hljs-literal">null</span>)&#123;<br>                    <span class="hljs-keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);<br>                &#125;<br>                <span class="hljs-type">CoursePublish</span> <span class="hljs-variable">coursePublish</span> <span class="hljs-operator">=</span> coursePublishMapper.selectById(courseId);<br>                redisTemplate.opsForValue().set(<span class="hljs-string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish),<span class="hljs-number">30</span>, TimeUnit.SECONDS);<br>                <span class="hljs-keyword">return</span> coursePublish;<br>            &#125;<br>        &#125;<span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">if</span>(o.toString().equals(<span class="hljs-string">&quot;null&quot;</span>)) <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>            <span class="hljs-keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);<br>        &#125;<br><br>    &#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>热点数据不过期</p>
 </li>
@@ -511,10 +377,10 @@
 <p>设置key永不过期</p>
 <h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaolincoding/p/16517673.html">不错的讲解-小林Coding</a></p>
 <p>一个同步锁程序只能保证同一个虚拟机中多个线程只有一个线程去数据库，如果高并发通过网关负载均衡转发给各个虚拟机，此时就会存在多个线程去查询数据库情况，因为虚拟机中的锁只能保证该虚拟机自己的线程去同步执行，无法跨虚拟机保证同步执行。</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191843855.png" alt="image-20230920191843855" style="zoom:50%;">
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191843855.png" srcset="/img/loading.gif" lazyload alt="image-20230920191843855" style="zoom:50%;">
 
 <p>本地锁只能控制所在虚拟机中的线程同步执行，现在要实现分布式环境下所有虚拟机中的线程去同步执行就需要让多个虚拟机去共用一个锁，虚拟机可以分布式部署，锁也可以分布式部署，如下图：</p>
-<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191957111.png" alt="image-20230920191957111" style="zoom:50%;">
+<img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920191957111.png" srcset="/img/loading.gif" lazyload alt="image-20230920191957111" style="zoom:50%;">
 
 <h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>1、基于数据库实现分布锁</p>
 <p>利用数据库主键唯一性的特点，或利用数据库唯一索引的特点，多个线程同时去插入相同的记录，谁插入成功谁就抢到锁。</p>
@@ -544,11 +410,11 @@
 <p>如果是采用手动删除锁可能和key到期自动删除有所冲突，造成删除了别人的锁。</p>
 <p>比如：当查询数据库等业务还没有执行完时key过期了，此时其它线程占用了锁，当上一个线程执行查询数据库等业务操作完成后手动删除锁就把其它线程的锁给删除了。</p>
 <p>要解决这个问题可以采用删除锁之前判断是不是自己设置的锁，伪代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(缓存中有)&#123;</span><br><span class="line"></span><br><span class="line">返回缓存中的数据</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">获取分布式锁: set lock <span class="number">01</span> NX</span><br><span class="line"><span class="title function_">if</span><span class="params">(获取锁成功）&#123;</span></span><br><span class="line"><span class="params">    <span class="keyword">try</span>&#123;</span></span><br><span class="line"><span class="params">      查询数据库</span></span><br><span class="line"><span class="params">   &#125;<span class="keyword">finally</span>&#123;</span></span><br><span class="line"><span class="params">      <span class="keyword">if</span>(redis.call(<span class="string">&quot;get&quot;</span>,<span class="string">&quot;lock&quot;</span>)</span>==<span class="string">&quot;01&quot;</span>)&#123;</span><br><span class="line">         释放锁: redis.call(<span class="string">&quot;del&quot;</span>,<span class="string">&quot;lock&quot;</span>)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span>(缓存中有)&#123;<br><br>返回缓存中的数据<br>&#125;<span class="hljs-keyword">else</span>&#123;<br><br>获取分布式锁: set lock <span class="hljs-number">01</span> NX<br><span class="hljs-title function_">if</span><span class="hljs-params">(获取锁成功）&#123;</span><br><span class="hljs-params">    <span class="hljs-keyword">try</span>&#123;</span><br><span class="hljs-params">      查询数据库</span><br><span class="hljs-params">   &#125;<span class="hljs-keyword">finally</span>&#123;</span><br><span class="hljs-params">      <span class="hljs-keyword">if</span>(redis.call(<span class="hljs-string">&quot;get&quot;</span>,<span class="hljs-string">&quot;lock&quot;</span>)</span>==<span class="hljs-string">&quot;01&quot;</span>)&#123;<br>         释放锁: redis.call(<span class="hljs-string">&quot;del&quot;</span>,<span class="hljs-string">&quot;lock&quot;</span>)<br>      &#125;<br><br>   &#125;<br>&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>以上代码第11行到13行非原子性，也会导致删除其它线程的锁。</p>
 <p>查看文档上的说明：<a target="_blank" rel="noopener" href="http://www.redis.cn/commands/set.html">http://www.redis.cn/commands/set.html</a></p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920193541306.png" alt="image-20230920193541306"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920193541306.png" srcset="/img/loading.gif" lazyload alt="image-20230920193541306"></p>
 <p>在调用setnx命令设置key&#x2F;value时，每个线程设置不一样的value值，这样当线程去删除锁时可以先根据key查询出来判断是不是自己当时设置的vlaue，如果是则删除。</p>
 <p>这整个操作是原子的，实现方法就是去执行上边的lua脚本。</p>
 <p><em>Lua</em> 是一个小巧的脚本语言，redis在2.6版本就支持通过执行Lua脚本保证多个命令的原子性。</p>
@@ -560,7 +426,7 @@
 <li><p>基于Redisson实现分布式锁</p>
 <blockquote>
 <p>Redisson相比set nx实现分布式锁要简单的多，工作原理如下：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920200601875.png" alt="image-20230920200601875"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/wusanliu/blogImgRepo@main/img/image-20230920200601875.png" srcset="/img/loading.gif" lazyload alt="image-20230920200601875"></p>
 <p>•     <strong>加锁机制</strong></p>
 <p>线程去获取锁，获取成功: 执行lua脚本，保存数据到redis数据库。</p>
 <p>线程去获取锁，获取失败: 一直通过while循环尝试获取锁，获取成功后，执行lua脚本，保存数据到redis</p>
@@ -574,775 +440,415 @@
 <p>具体实现</p>
 <ul>
 <li><p>调整配置,创建配置文件</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span> </span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="attr">host:</span> <span class="number">192.168</span><span class="number">.136</span><span class="number">.133</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">6379</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">database:</span> <span class="number">0</span></span><br><span class="line">    <span class="attr">lettuce:</span></span><br><span class="line">      <span class="attr">pool:</span></span><br><span class="line">        <span class="attr">max-active:</span> <span class="number">20</span></span><br><span class="line">        <span class="attr">max-idle:</span> <span class="number">10</span></span><br><span class="line">        <span class="attr">min-idle:</span> <span class="number">0</span></span><br><span class="line">    <span class="attr">timeout:</span> <span class="number">10000</span></span><br><span class="line">    <span class="attr">redisson:</span></span><br><span class="line">      <span class="comment"># 配置文件目录</span></span><br><span class="line">      <span class="attr">config:</span> <span class="string">classpath:singleServerConfig.yaml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span> <br>  <span class="hljs-attr">redis:</span><br>    <span class="hljs-attr">host:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.136</span><span class="hljs-number">.133</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">6379</span><br>    <span class="hljs-attr">password:</span> <span class="hljs-string">root</span><br>    <span class="hljs-attr">database:</span> <span class="hljs-number">0</span><br>    <span class="hljs-attr">lettuce:</span><br>      <span class="hljs-attr">pool:</span><br>        <span class="hljs-attr">max-active:</span> <span class="hljs-number">20</span><br>        <span class="hljs-attr">max-idle:</span> <span class="hljs-number">10</span><br>        <span class="hljs-attr">min-idle:</span> <span class="hljs-number">0</span><br>    <span class="hljs-attr">timeout:</span> <span class="hljs-number">10000</span><br>    <span class="hljs-attr">redisson:</span><br>      <span class="hljs-comment"># 配置文件目录</span><br>      <span class="hljs-attr">config:</span> <span class="hljs-string">classpath:singleServerConfig.yaml</span><br></code></pre></td></tr></table></figure>
 
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">singleServerConfig:</span></span><br><span class="line">  <span class="comment">#如果当前连接池里的连接数量超过了最小空闲连接数，而同时有连接空闲时间超过了该数值，</span></span><br><span class="line">  <span class="comment">#那么这些连接将会自动被关闭，并从连接池里去掉。时间单位是毫秒。</span></span><br><span class="line">  <span class="comment">#默认值：10000</span></span><br><span class="line">  <span class="attr">idleConnectionTimeout:</span> <span class="number">10000</span></span><br><span class="line">  <span class="attr">pingTimeout:</span> <span class="number">1000</span></span><br><span class="line">  <span class="comment">#同任何节点建立连接时的等待超时。时间单位是毫秒。</span></span><br><span class="line">  <span class="comment">#默认值：10000</span></span><br><span class="line">  <span class="attr">connectTimeout:</span> <span class="number">10000</span></span><br><span class="line">  <span class="comment">#等待节点回复命令的时间。该时间从命令发送成功时开始计时。</span></span><br><span class="line">  <span class="comment">#默认值：3000</span></span><br><span class="line">  <span class="attr">timeout:</span> <span class="number">3000</span></span><br><span class="line">  <span class="comment">#如果尝试达到 retryAttempts（命令失败重试次数）</span></span><br><span class="line">  <span class="comment">#仍然不能将命令发送至某个指定的节点时，将抛出错误。如果尝试在此限制之内发送成功，</span></span><br><span class="line">  <span class="comment">#则开始启用 timeout（命令等待超时） 计时。</span></span><br><span class="line">  <span class="comment">#默认值：3</span></span><br><span class="line">  <span class="attr">retryAttempts:</span> <span class="number">3</span></span><br><span class="line">  <span class="comment">#在某个节点执行相同或不同命令时，连续失败failedAttempts（执行失败最大次数）时，</span></span><br><span class="line">  <span class="comment">#该节点将被从可用节点列表里清除，直到 reconnectionTimeout（重新连接时间间隔） 超时以后再次尝试。</span></span><br><span class="line">  <span class="comment">#默认值：1500</span></span><br><span class="line">  <span class="attr">retryInterval:</span> <span class="number">1500</span></span><br><span class="line">  <span class="comment">#重新连接时间间隔</span></span><br><span class="line">  <span class="attr">reconnectionTimeout:</span> <span class="number">3000</span></span><br><span class="line">  <span class="comment">#执行失败最大次数</span></span><br><span class="line">  <span class="attr">failedAttempts:</span> <span class="number">3</span></span><br><span class="line">  <span class="comment">#密码</span></span><br><span class="line">  <span class="attr">password:</span> <span class="string">root</span></span><br><span class="line">  <span class="comment">#数据库选择 select 4</span></span><br><span class="line">  <span class="attr">database:</span> <span class="number">0</span></span><br><span class="line">  <span class="comment">#每个连接的最大订阅数量。</span></span><br><span class="line">  <span class="comment">#默认值：5</span></span><br><span class="line">  <span class="attr">subscriptionsPerConnection:</span> <span class="number">5</span></span><br><span class="line">  <span class="comment">#在Redis节点里显示的客户端名称。</span></span><br><span class="line">  <span class="attr">clientName:</span> <span class="literal">null</span></span><br><span class="line">  <span class="comment">#在Redis节点</span></span><br><span class="line">  <span class="attr">address:</span> <span class="string">&quot;redis://192.168.168.133:6379&quot;</span></span><br><span class="line">  <span class="comment">#从节点发布和订阅连接的最小空闲连接数</span></span><br><span class="line">  <span class="comment">#默认值：1</span></span><br><span class="line">  <span class="attr">subscriptionConnectionMinimumIdleSize:</span> <span class="number">1</span></span><br><span class="line">  <span class="comment">#用于发布和订阅连接的连接池最大容量。连接池的连接数量自动弹性伸缩。</span></span><br><span class="line">  <span class="comment">#默认值：50</span></span><br><span class="line">  <span class="attr">subscriptionConnectionPoolSize:</span> <span class="number">50</span></span><br><span class="line">  <span class="comment">#节点最小空闲连接数</span></span><br><span class="line">  <span class="comment">#默认值：32</span></span><br><span class="line">  <span class="attr">connectionMinimumIdleSize:</span> <span class="number">32</span></span><br><span class="line">  <span class="comment">#节点连接池大小</span></span><br><span class="line">  <span class="comment">#默认值：64</span></span><br><span class="line">  <span class="attr">connectionPoolSize:</span> <span class="number">64</span></span><br><span class="line"><span class="comment">#这个线程池数量被所有RTopic对象监听器，RRemoteService调用者和RExecutorService任务共同共享。</span></span><br><span class="line"><span class="comment">#默认值: 当前处理核数量 * 2</span></span><br><span class="line"><span class="attr">threads:</span> <span class="number">8</span></span><br><span class="line"><span class="comment">#这个线程池数量是在一个Redisson实例内，被其创建的所有分布式数据类型和服务，</span></span><br><span class="line"><span class="comment">#以及底层客户端所一同共享的线程池里保存的线程数量。</span></span><br><span class="line"><span class="comment">#默认值: 当前处理核数量 * 2</span></span><br><span class="line"><span class="attr">nettyThreads:</span> <span class="number">8</span></span><br><span class="line"><span class="comment">#Redisson的对象编码类是用于将对象进行序列化和反序列化，以实现对该对象在Redis里的读取和存储。</span></span><br><span class="line"><span class="comment">#默认值: org.redisson.codec.JsonJacksonCodec</span></span><br><span class="line"><span class="attr">codec:</span> <span class="type">!&lt;org.redisson.codec.JsonJacksonCodec&gt;</span> &#123;&#125;</span><br><span class="line"><span class="comment">#传输模式</span></span><br><span class="line"><span class="comment">#默认值：TransportMode.NIO</span></span><br><span class="line"><span class="attr">transportMode:</span> <span class="string">&quot;NIO&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-meta">---</span><br><span class="hljs-attr">singleServerConfig:</span><br>  <span class="hljs-comment">#如果当前连接池里的连接数量超过了最小空闲连接数，而同时有连接空闲时间超过了该数值，</span><br>  <span class="hljs-comment">#那么这些连接将会自动被关闭，并从连接池里去掉。时间单位是毫秒。</span><br>  <span class="hljs-comment">#默认值：10000</span><br>  <span class="hljs-attr">idleConnectionTimeout:</span> <span class="hljs-number">10000</span><br>  <span class="hljs-attr">pingTimeout:</span> <span class="hljs-number">1000</span><br>  <span class="hljs-comment">#同任何节点建立连接时的等待超时。时间单位是毫秒。</span><br>  <span class="hljs-comment">#默认值：10000</span><br>  <span class="hljs-attr">connectTimeout:</span> <span class="hljs-number">10000</span><br>  <span class="hljs-comment">#等待节点回复命令的时间。该时间从命令发送成功时开始计时。</span><br>  <span class="hljs-comment">#默认值：3000</span><br>  <span class="hljs-attr">timeout:</span> <span class="hljs-number">3000</span><br>  <span class="hljs-comment">#如果尝试达到 retryAttempts（命令失败重试次数）</span><br>  <span class="hljs-comment">#仍然不能将命令发送至某个指定的节点时，将抛出错误。如果尝试在此限制之内发送成功，</span><br>  <span class="hljs-comment">#则开始启用 timeout（命令等待超时） 计时。</span><br>  <span class="hljs-comment">#默认值：3</span><br>  <span class="hljs-attr">retryAttempts:</span> <span class="hljs-number">3</span><br>  <span class="hljs-comment">#在某个节点执行相同或不同命令时，连续失败failedAttempts（执行失败最大次数）时，</span><br>  <span class="hljs-comment">#该节点将被从可用节点列表里清除，直到 reconnectionTimeout（重新连接时间间隔） 超时以后再次尝试。</span><br>  <span class="hljs-comment">#默认值：1500</span><br>  <span class="hljs-attr">retryInterval:</span> <span class="hljs-number">1500</span><br>  <span class="hljs-comment">#重新连接时间间隔</span><br>  <span class="hljs-attr">reconnectionTimeout:</span> <span class="hljs-number">3000</span><br>  <span class="hljs-comment">#执行失败最大次数</span><br>  <span class="hljs-attr">failedAttempts:</span> <span class="hljs-number">3</span><br>  <span class="hljs-comment">#密码</span><br>  <span class="hljs-attr">password:</span> <span class="hljs-string">root</span><br>  <span class="hljs-comment">#数据库选择 select 4</span><br>  <span class="hljs-attr">database:</span> <span class="hljs-number">0</span><br>  <span class="hljs-comment">#每个连接的最大订阅数量。</span><br>  <span class="hljs-comment">#默认值：5</span><br>  <span class="hljs-attr">subscriptionsPerConnection:</span> <span class="hljs-number">5</span><br>  <span class="hljs-comment">#在Redis节点里显示的客户端名称。</span><br>  <span class="hljs-attr">clientName:</span> <span class="hljs-literal">null</span><br>  <span class="hljs-comment">#在Redis节点</span><br>  <span class="hljs-attr">address:</span> <span class="hljs-string">&quot;redis://192.168.168.133:6379&quot;</span><br>  <span class="hljs-comment">#从节点发布和订阅连接的最小空闲连接数</span><br>  <span class="hljs-comment">#默认值：1</span><br>  <span class="hljs-attr">subscriptionConnectionMinimumIdleSize:</span> <span class="hljs-number">1</span><br>  <span class="hljs-comment">#用于发布和订阅连接的连接池最大容量。连接池的连接数量自动弹性伸缩。</span><br>  <span class="hljs-comment">#默认值：50</span><br>  <span class="hljs-attr">subscriptionConnectionPoolSize:</span> <span class="hljs-number">50</span><br>  <span class="hljs-comment">#节点最小空闲连接数</span><br>  <span class="hljs-comment">#默认值：32</span><br>  <span class="hljs-attr">connectionMinimumIdleSize:</span> <span class="hljs-number">32</span><br>  <span class="hljs-comment">#节点连接池大小</span><br>  <span class="hljs-comment">#默认值：64</span><br>  <span class="hljs-attr">connectionPoolSize:</span> <span class="hljs-number">64</span><br><span class="hljs-comment">#这个线程池数量被所有RTopic对象监听器，RRemoteService调用者和RExecutorService任务共同共享。</span><br><span class="hljs-comment">#默认值: 当前处理核数量 * 2</span><br><span class="hljs-attr">threads:</span> <span class="hljs-number">8</span><br><span class="hljs-comment">#这个线程池数量是在一个Redisson实例内，被其创建的所有分布式数据类型和服务，</span><br><span class="hljs-comment">#以及底层客户端所一同共享的线程池里保存的线程数量。</span><br><span class="hljs-comment">#默认值: 当前处理核数量 * 2</span><br><span class="hljs-attr">nettyThreads:</span> <span class="hljs-number">8</span><br><span class="hljs-comment">#Redisson的对象编码类是用于将对象进行序列化和反序列化，以实现对该对象在Redis里的读取和存储。</span><br><span class="hljs-comment">#默认值: org.redisson.codec.JsonJacksonCodec</span><br><span class="hljs-attr">codec:</span> <span class="hljs-type">!&lt;org.redisson.codec.JsonJacksonCodec&gt;</span> &#123;&#125;<br><span class="hljs-comment">#传输模式</span><br><span class="hljs-comment">#默认值：TransportMode.NIO</span><br><span class="hljs-attr">transportMode:</span> <span class="hljs-string">&quot;NIO&quot;</span><br></code></pre></td></tr></table></figure>
 </li>
 <li><p>依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.11.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.redisson<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>redisson-spring-boot-starter<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.11.2<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
 </li>
 <li><p>使用</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> CoursePublish <span class="title function_">getCoursePublishCache</span><span class="params">(Long courseId)</span> &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;course:&quot;</span> + courseId);</span><br><span class="line">        <span class="keyword">if</span>(o==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="comment">//每门课程设置一个锁</span></span><br><span class="line">            <span class="type">RLock</span> <span class="variable">lock</span> <span class="operator">=</span> redissonClient.getLock(<span class="string">&quot;coursequerylock:&quot;</span>+courseId);</span><br><span class="line">            <span class="comment">//获取锁</span></span><br><span class="line">            lock.lock();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">//                再次查一下缓存</span></span><br><span class="line">                o = redisTemplate.opsForValue().get(<span class="string">&quot;course:&quot;</span> + courseId);</span><br><span class="line"><span class="comment">//                再次查查到了，之前拥有锁的把信息放进去了</span></span><br><span class="line">                <span class="keyword">if</span>(o!=<span class="literal">null</span>)&#123;</span><br><span class="line">                    <span class="keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="type">CoursePublish</span> <span class="variable">coursePublish</span> <span class="operator">=</span> coursePublishMapper.selectById(courseId);</span><br><span class="line">                redisTemplate.opsForValue().set(<span class="string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish),<span class="number">30</span>, TimeUnit.SECONDS);</span><br><span class="line">                <span class="keyword">return</span> coursePublish;</span><br><span class="line">            &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(o.toString().equals(<span class="string">&quot;null&quot;</span>)) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java">    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> CoursePublish <span class="hljs-title function_">getCoursePublishCache</span><span class="hljs-params">(Long courseId)</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().get(<span class="hljs-string">&quot;course:&quot;</span> + courseId);<br>        <span class="hljs-keyword">if</span>(o==<span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-comment">//每门课程设置一个锁</span><br>            <span class="hljs-type">RLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> redissonClient.getLock(<span class="hljs-string">&quot;coursequerylock:&quot;</span>+courseId);<br>            <span class="hljs-comment">//获取锁</span><br>            lock.lock();<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-comment">//                再次查一下缓存</span><br>                o = redisTemplate.opsForValue().get(<span class="hljs-string">&quot;course:&quot;</span> + courseId);<br><span class="hljs-comment">//                再次查查到了，之前拥有锁的把信息放进去了</span><br>                <span class="hljs-keyword">if</span>(o!=<span class="hljs-literal">null</span>)&#123;<br>                    <span class="hljs-keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);<br>                &#125;<br>                <span class="hljs-type">CoursePublish</span> <span class="hljs-variable">coursePublish</span> <span class="hljs-operator">=</span> coursePublishMapper.selectById(courseId);<br>                redisTemplate.opsForValue().set(<span class="hljs-string">&quot;course:&quot;</span>+courseId,JSON.toJSONString(coursePublish),<span class="hljs-number">30</span>, TimeUnit.SECONDS);<br>                <span class="hljs-keyword">return</span> coursePublish;<br>            &#125;<span class="hljs-keyword">finally</span> &#123;<br>                lock.unlock();<br>            &#125;<br>        &#125;<span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">if</span>(o.toString().equals(<span class="hljs-string">&quot;null&quot;</span>)) <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>            <span class="hljs-keyword">return</span> JSON.parseObject(o.toString(),CoursePublish.class);<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure></li>
 </ul>
 </blockquote>
 </li>
 </ul>
 <h3 id><a href="#" class="headerlink" title></a></h3>
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/%E5%90%8E%E7%AB%AF/" rel="tag"><i class="fa fa-tag"></i> 后端</a>
-          
-            <a href="/tags/Redis%E4%BC%98%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> Redis优化</a>
-          
-            <a href="/tags/Nosql%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"><i class="fa fa-tag"></i> Nosql数据库</a>
-          
-            <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" rel="tag"><i class="fa fa-tag"></i> 分布式锁</a>
-          
-            <a href="/tags/Redisson/" rel="tag"><i class="fa fa-tag"></i> Redisson</a>
-          
-        </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
+                
+              </div>
             
-              <a href="/2023/09/23/%E8%AE%A4%E8%AF%86Spring%20Security/" rel="next" title="认识Spring Security">
-                <i class="fa fa-chevron-left"></i> 认识Spring Security
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-          </div>
-        </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
 
-      
-      
-    </footer>
-  </div>
+<span class="category-chains">
   
   
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-    </div>
-  </div>
-
-
-          </div>
-          
-
-
-          
-
-  
-
-
-
-        </div>
+    
+      <span class="category-chain">
         
-          
+  <a href="/categories/%E5%90%8E%E7%AB%AF/" class="category-chain-item">后端</a>
   
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+  
+
+      </span>
+    
+  
+</span>
+
     </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/Redis%E4%BC%98%E5%8C%96/" class="print-no-link">#Redis优化</a>
+      
+        <a href="/tags/Nosql%E6%95%B0%E6%8D%AE%E5%BA%93/" class="print-no-link">#Nosql数据库</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" class="print-no-link">#分布式锁</a>
+      
+        <a href="/tags/Redisson/" class="print-no-link">#Redisson</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Redis优化与分布式锁</div>
+      <div>http://example.com/2023/09/30/Redis优化与分布式锁/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WuSanLiu</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年9月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
   </div>
 
-  <aside id="sidebar" class="sidebar">
-    
-      <div id="sidebar-dimmer"></div>
-    
-    <div class="sidebar-inner">
 
-      
 
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
-
-      <section class="site-overview-wrap sidebar-panel">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <img class="site-author-image" itemprop="image"
-                src="/%5Bobject%20Object%5D"
-                alt="" />
-            
-              <p class="site-author-name" itemprop="name"></p>
-              <p class="site-description motion-element" itemprop="description"></p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
               
-                <a href="/archives/%7C%7C%20archive">
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/09/23/%E8%AE%A4%E8%AF%86Spring%20Security/" title="认识Spring Security">
+                        <span class="hidden-mobile">认识Spring Security</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
               
-                  <span class="site-state-item-count">22</span>
-                  <span class="site-state-item-name">日志</span>
-                </a>
-              </div>
-            
+            </div>
 
             
-              
-              
-              <div class="site-state-item site-state-categories">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
-                  <span class="site-state-item-name">分类</span>
-                </a>
-              </div>
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">32</span>
-                  <span class="site-state-item-name">标签</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-
-          
-
-          
-          
-
-          
-          
-
-          
-
+          </article>
         </div>
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis%E4%BC%98%E5%8C%96%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">1.</span> <span class="nav-text">Redis优化与分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E4%BC%98%E5%8C%96"><span class="nav-number">1.1.</span> <span class="nav-text">Redis优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="nav-number">1.1.1.</span> <span class="nav-text">缓存穿透</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="nav-number">1.1.2.</span> <span class="nav-text">缓存雪崩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF"><span class="nav-number">1.1.3.</span> <span class="nav-text">缓存击穿</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.1.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.2.3.</span> <span class="nav-text"></span></a></li></ol></li></ol></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-        <div class="back-to-top">
-          <i class="fa fa-arrow-up"></i>
-          
-        </div>
-      
-
+      </div>
     </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
   </aside>
 
 
-        
-      </div>
-    </main>
+    </div>
+  </div>
+</div>
 
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">WuSanLiu</span>
+
+
+
 
   
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-area-chart"></i>
-    </span>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-      <span class="post-meta-item-text">Site words total count&#58;</span>
+
     
-    <span title="Site words total count">17.7k</span>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
   
 </div>
-<!--
 
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+  </footer>
 
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
-
--->
-
-
-  <div class="powered-by">
-  <i class="fa fa-user-md"></i>
-  <span id="busuanzi_container_site_uv">
-    本站总访客数:<span id="busuanzi_value_site_uv"></span>&nbsp;&nbsp;| 
-  </span>
-  <span id="busuanzi_container_site_pv">
-      &nbsp;本站总访问量<span id="busuanzi_value_site_pv"></span>次
-  </span>
-  </div>
-  </div>
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
 
   <script>
-      var now = new Date(); 
-      function createtime() { 
-          var grt= new Date("03/6/2023 12:00:00");//此处修改你的建站时间或者网站上线时间 
-          now.setTime(now.getTime()+250); 
-          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
-          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
-          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
-          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
-          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
-          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
-          document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
-          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
-      } 
-  setInterval("createtime()",250);
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
   </script>
-        
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
 
   
-
-  
-</div>
-
-
-
-
-
-
-
-
-        
-      </div>
-    </footer>
-
-    
-
-    
-
-  </div>
-
+    <script  src="/js/img-lazyload.js" ></script>
   
 
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
 </script>
 
 
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
+  <script>Fluid.plugins.codeWidget();</script>
 
 
   
-  
-    <script type="text/javascript" src="/libchangebyme/jquery/index.js?v=2.1.3"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/libchangebyme/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/libchangebyme/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/libchangebyme/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/libchangebyme/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/libchangebyme/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
-
-
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  
-
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "search.xml";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
     }
+    window.anchors.add(res.join(', '));
 
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
         }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
       }
     });
-  </script>
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
 
 
   
 
-  
-
-  
-
-  
-  
-
-  
-
-  
-
-  
-
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
 </html>
